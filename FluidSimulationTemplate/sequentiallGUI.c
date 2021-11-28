@@ -10,9 +10,9 @@ static int arraySize, arrayDimension;
 
 static float dt, visc;
 
-static void RenderString()
+static void Sliders()
 {
-    // glColor3f(1.0, 1.0, 1.0);
+    // Drawing Sliders Text Fields
     glColor3f(0.0, 0.0, 0.0);
     glRasterPos2f(408., 26.);
     glutBitmapString(GLUT_BITMAP_9_BY_15, "Controls");
@@ -25,6 +25,8 @@ static void RenderString()
     glRasterPos2f(0., 0.);
 
     glBegin(GL_LINES);
+
+    // Time Step
     glVertex2d(430., 38.);
     glVertex2d(510., 38.);
     glVertex2d(430., 49.);
@@ -33,6 +35,28 @@ static void RenderString()
     glVertex2d(430., 49.);
     glVertex2d(510., 38.);
     glVertex2d(510., 49.);
+
+    // Viscosity
+    glVertex2d(430., 58.);
+    glVertex2d(510., 58.);
+    glVertex2d(430., 69.);
+    glVertex2d(510., 69.);
+    glVertex2d(430., 58.);
+    glVertex2d(430., 69.);
+    glVertex2d(510., 58.);
+    glVertex2d(510., 69.);
+
+    // Vorticity
+    glVertex2d(430., 78.);
+    glVertex2d(510., 78.);
+    glVertex2d(430., 89.);
+    glVertex2d(510., 89.);
+    glVertex2d(430., 78.);
+    glVertex2d(430., 89.);
+    glVertex2d(510., 78.);
+    glVertex2d(510., 89.);
+
+    // Fill In Sliders
     float sliderStart = 430.;
     float sliderEnd = 510.;
     if (dt > 30.)
@@ -54,59 +78,22 @@ static void RenderString()
             glVertex2d(i, 69.);
         }
     }
-
-    // First
-    glVertex2d(430., 58.);
-    glVertex2d(510., 58.);
-    glVertex2d(430., 69.);
-    glVertex2d(510., 69.);
-    glVertex2d(430., 58.);
-    glVertex2d(430., 69.);
-    glVertex2d(510., 58.);
-    glVertex2d(510., 69.);
-    // First
-    glVertex2d(430., 78.);
-    glVertex2d(510., 78.);
-    glVertex2d(430., 89.);
-    glVertex2d(510., 89.);
-    glVertex2d(430., 78.);
-    glVertex2d(430., 89.);
-    glVertex2d(510., 78.);
-    glVertex2d(510., 89.);
-
     glEnd();
 }
 
 static void color_Array()
 {
-    // glBegin(GL_QUADS);
-    // glBegin(GL_POINTS);
     for (int i = 0; i < 512; i++)
     {
         for (int j = 0; j < 512; j++)
         {
-            // float color = (float) (i * j) / (float) arrayDimension;
-            // glColor3f(1.0, 0.0, 0.0);
-            // glColor3f(color, color, color);
             array[i + j * 512] = 255;
-            // float color1 = rand() % 255;
-            // float color2 = rand() % 255;
-            // float color3 = rand() % 255;
-            // glColor3f(color1, color2, color3);
-            // glColor3i(color, color, color);
-            // glVertex2i(i, j);
-
-            // glVertex2d(0., 0.);
-            // glVertex2d(256., 256.);
         }
     }
-    // glEnd();
 }
 static void draw_Array()
 {
-    // glBegin(GL_QUADS);
     glBegin(GL_POINTS);
-
     for (int i = 0; i < 512; i++)
     {
         for (int j = 0; j < 512; j++)
@@ -122,7 +109,6 @@ static void draw_Array()
 static void pre_display(void)
 {
     glViewport(0, 0, 512, 512);
-    // glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluOrtho2D(0.0, 512., 512., 0.0);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -167,15 +153,19 @@ static void key_func(unsigned char key, int x, int y)
 static void idle_func(void)
 {
     glutSetWindow(windowID);
+    /////// Insert fluid sim cumputation below:
     color_Array();
+    //////
     glutPostRedisplay();
 }
 
 static void display_func(void)
 {
     pre_display();
+    ///////////// Insert pixel drawing function below
     draw_Array();
-    RenderString();
+    Sliders();
+    /////////////
     post_display();
 }
 
@@ -205,7 +195,6 @@ int main(int argc, char **argv)
     visc = 0.;
     arrayDimension = width * height;
     arraySize = arrayDimension * sizeof(float);
-    // cudaMallocManaged(&array, width * height * sizeof(double));
     array = (float *)malloc(arraySize);
     open_glut_window();
     glutMainLoop();
