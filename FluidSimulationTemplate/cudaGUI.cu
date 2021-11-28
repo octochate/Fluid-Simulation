@@ -1,6 +1,3 @@
-// #include <stdlib.h>
-// #include <stdio.h>
-// #include "glut.h"
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
@@ -22,21 +19,23 @@ static int arraySize, arrayDimension;
 
 static float dt, visc;
 
-static void RenderString()
+static void Sliders()
 {
-    glColor3f(1.0, 1.0, 1.0);
-    // glColor3f(0.0, 0.0, 0.0);
+    // Drawing Sliders Text Fields
+    glColor3f(0.0, 0.0, 0.0);
     glRasterPos2f(408., 26.);
-    glutBitmapString(GLUT_BITMAP_9_BY_15, (const unsigned char *)"Controls");
+    glutBitmapString(GLUT_BITMAP_9_BY_15, "Controls");
     glRasterPos2f(350., 48.);
-    glutBitmapString(GLUT_BITMAP_8_BY_13, (const unsigned char *)"Time Step");
+    glutBitmapString(GLUT_BITMAP_8_BY_13, "Time Step");
     glRasterPos2f(350., 68.);
-    glutBitmapString(GLUT_BITMAP_8_BY_13, (const unsigned char *)"Viscosity");
+    glutBitmapString(GLUT_BITMAP_8_BY_13, "Viscosity");
     glRasterPos2f(350., 88.);
-    glutBitmapString(GLUT_BITMAP_8_BY_13, (const unsigned char *)"Vorticity");
+    glutBitmapString(GLUT_BITMAP_8_BY_13, "Vorticity");
     glRasterPos2f(0., 0.);
 
     glBegin(GL_LINES);
+
+    // Time Step
     glVertex2d(430., 38.);
     glVertex2d(510., 38.);
     glVertex2d(430., 49.);
@@ -45,6 +44,28 @@ static void RenderString()
     glVertex2d(430., 49.);
     glVertex2d(510., 38.);
     glVertex2d(510., 49.);
+
+    // Viscosity
+    glVertex2d(430., 58.);
+    glVertex2d(510., 58.);
+    glVertex2d(430., 69.);
+    glVertex2d(510., 69.);
+    glVertex2d(430., 58.);
+    glVertex2d(430., 69.);
+    glVertex2d(510., 58.);
+    glVertex2d(510., 69.);
+
+    // Vorticity
+    glVertex2d(430., 78.);
+    glVertex2d(510., 78.);
+    glVertex2d(430., 89.);
+    glVertex2d(510., 89.);
+    glVertex2d(430., 78.);
+    glVertex2d(430., 89.);
+    glVertex2d(510., 78.);
+    glVertex2d(510., 89.);
+
+    // Fill In Sliders
     float sliderStart = 430.;
     float sliderEnd = 510.;
     if (dt > 30.)
@@ -66,32 +87,11 @@ static void RenderString()
             glVertex2d(i, 69.);
         }
     }
-
-    // First
-    glVertex2d(430., 58.);
-    glVertex2d(510., 58.);
-    glVertex2d(430., 69.);
-    glVertex2d(510., 69.);
-    glVertex2d(430., 58.);
-    glVertex2d(430., 69.);
-    glVertex2d(510., 58.);
-    glVertex2d(510., 69.);
-    // First
-    glVertex2d(430., 78.);
-    glVertex2d(510., 78.);
-    glVertex2d(430., 89.);
-    glVertex2d(510., 89.);
-    glVertex2d(430., 78.);
-    glVertex2d(430., 89.);
-    glVertex2d(510., 78.);
-    glVertex2d(510., 89.);
-
     glEnd();
 }
 
 __global__ static void color_Array()
 {
-    // arrayCUDA[65536] = 0.5;
     // int index = blockIdx.x * blockDim.x + threadIdx.x;
     for (int i = 0; i < 512; i++)
     {
@@ -104,15 +104,11 @@ __global__ static void color_Array()
 static void draw_Array()
 {
     glBegin(GL_POINTS);
-    // cudaMemcpy(arrayHOST, parrayCUDA, arraySize, cudaMemcpyDeviceToHost);
-    // cudaMemcpyFromSymbol(arrayHOST, "arrayCUDA", arraySize, 0, cudaMemcpyDeviceToHost);
-    // cudaMemcpyFromSymbol((void**)&arrayHOST, "arrayCUDA", arraySize, 0, cudaMemcpyDeviceToHost);
-    // parrayCUDA = NULL;
-    // cudaMemcpyFromSymbol((void**)&parrayCUDA, "arrayCUDA", arraySize, 0, cudaMemcpyDeviceToHost);
-    cudaMemcpyFromSymbol(arrayHOST, (const char *)"arrayCUDA", arraySize, 0, cudaMemcpyDeviceToHost);
-    // cudaMemcpy(arrayHOST, parrayCUDA, arraySize, cudaMemcpyDeviceToHost);
-    // printf("HOST %f\n", arrayHOST[0]);
 
+    /////// This is where the problem lies
+    // How to copy a __device__ array to the __host__ array.
+    cudaMemcpyFromSymbol(arrayHOST, (const char *)"arrayCUDA", arraySize, 0, cudaMemcpyDeviceToHost);
+    ///////
     for (int i = 0; i < 512; i++)
     {
         for (int j = 0; j < 512; j++)
@@ -182,7 +178,7 @@ static void display_func(void)
     color_Array<<<1,1>>>();
     cudaDeviceSynchronize();
     draw_Array();
-    RenderString();
+    Sliders();
     post_display();
 }
 
@@ -214,9 +210,6 @@ int main(int argc, char **argv)
     arraySize = arrayDimension * sizeof(float);
     cudaMalloc(&arrayCUDA, arraySize);
     arrayHOST = (float *)malloc(arraySize);
-    // std::cout << "arrayCUDAPPP " << *parrayCUDA << "\n";
-    // arrayHOST = NULL;
-    // parrayCUDA = &arrayCUDA[0];
     std::cout << "arrayCUDA " << &arrayCUDA << "\n";
     std::cout << "arrayCUDAP " << parrayCUDA << "\n";
     std::cout << "arrayCUDAPP " << &parrayCUDA << "\n";
