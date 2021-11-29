@@ -1,4 +1,4 @@
-#include <stdlib.h>
+﻿#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "cuda_runtime.h"
@@ -73,10 +73,9 @@ __device__ void advect(int N, int b, float* d, float* d0, float* u, float* v, fl
 }
 
 
-__global__ void project(int N, float* u, float* v, float* p, float* div)
+__device__ void project(int N, float* u, float* v, float* p, float* div)
 {
     int i, j;
-    int idx = threadIdx.x;
 
     FOR_EACH_CELL
         div[IX(i, j)] = -0.5f * (u[IX(i + 1, j)] - u[IX(i - 1, j)] + v[IX(i, j + 1)] - v[IX(i, j - 1)]) / N;
