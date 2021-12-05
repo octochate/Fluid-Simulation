@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ﻿#include <stdlib.h>
+=======
+#include <stdlib.h>
+>>>>>>> 2b31b9ee5a02e628a1cd5ebae7c2189ae02d3a62
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
@@ -6,8 +10,11 @@
 #include "utilities.h"
 
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 2b31b9ee5a02e628a1cd5ebae7c2189ae02d3a62
 #define NUM_ROW 64
 #define NUM_COL NUM_ROW
 #define GRID_SIZE NUM_ROW * NUM_COL
@@ -15,12 +22,21 @@
 
 volatile int q = 0;
 volatile int q_ink = 0;
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2b31b9ee5a02e628a1cd5ebae7c2189ae02d3a62
 volatile int dvel;
 
 static int win_id;
 static int win_x, win_y;
 static float dt, diff, visc;
 
+<<<<<<< HEAD
+=======
+static int diffusion_iter = 50, pressure_iter = 50;
+
+>>>>>>> 2b31b9ee5a02e628a1cd5ebae7c2189ae02d3a62
 static float vort, fluidSize, fluidAmount, forceSize, forceAmount;
 
 // Variable bounds.
@@ -28,8 +44,13 @@ float numIntervals = 100;
 float dtMax = 0.5;
 float dtMin = 0.000001;
 float dt_del = (dtMax - dtMin) / numIntervals;
+<<<<<<< HEAD
 float viscMax = 0.9;
 float viscMin = 0.00001;
+=======
+float viscMax = 1;
+float viscMin = 0.000000001;
+>>>>>>> 2b31b9ee5a02e628a1cd5ebae7c2189ae02d3a62
 float visc_del = (viscMax - viscMin) / numIntervals;
 float vortMax = 1.;
 float vortMin = 0.001;
@@ -51,6 +72,10 @@ static void get_from_UI();
 static void display_func(void);
 
 // update functions
+<<<<<<< HEAD
+=======
+void advect_density(f3 u[NUM_ROW][NUM_COL], f3 u1[NUM_ROW][NUM_COL], f3 X[NUM_ROW][NUM_COL], float timestep, float gain);
+>>>>>>> 2b31b9ee5a02e628a1cd5ebae7c2189ae02d3a62
 void update_grid(f3 u[NUM_ROW][NUM_COL], f3 u_temp[NUM_ROW][NUM_COL], f3 p[NUM_ROW][NUM_COL], f3 divergence_u[NUM_ROW][NUM_COL], float timestep, float epsilon);
 void advect(f3 u[NUM_ROW][NUM_COL], f3 u1[NUM_ROW][NUM_COL], f3 X[NUM_ROW][NUM_COL], float timestep, float gain);
 void diffuse(f3 u[NUM_ROW][NUM_COL], f3 u1[NUM_ROW][NUM_COL], float diffusion_rate, float timestep);
@@ -64,7 +89,11 @@ void addExternalForce(f3 force, f3 position, float impulseRadius);
 void addInk(f3 force, f3 position, float impulseRadius);
 
 // assign pointers for u, u1, u2 2D grids
+<<<<<<< HEAD
 f3 U[2][NUM_ROW][NUM_COL], P[NUM_ROW][NUM_COL], P_guess[NUM_ROW][NUM_COL], Divergence_u[NUM_ROW][NUM_COL], ink[2][NUM_ROW][NUM_COL];
+=======
+f3 U[2][NUM_ROW][NUM_COL], U_b[NUM_ROW][NUM_COL], P[NUM_ROW][NUM_COL], P_guess[NUM_ROW][NUM_COL], Divergence_u[NUM_ROW][NUM_COL], ink[2][NUM_ROW][NUM_COL];
+>>>>>>> 2b31b9ee5a02e628a1cd5ebae7c2189ae02d3a62
 
 void clearGrids() {
     for (int x = 0; x < NUM_COL; x++) {
@@ -289,6 +318,7 @@ static void draw_density(void)
 
             if (square == 1 && i >= 34 && i < 62 && j >= 34 && j < 62) {
                 ink[(q_ink) % 1][j][i] = f3(0.0, 0);
+<<<<<<< HEAD
                 d00 = f3(1.0, 10);
                 d01 = f3(1.0, 10);
                 d10 = f3(1.0, 10);
@@ -297,6 +327,16 @@ static void draw_density(void)
                 glColor3f(0.0, d10.y, 0.0); glVertex2f(x + h, y);
                 glColor3f(0.0, d11.y, 0.0); glVertex2f(x + h, y + h);
                 glColor3f(0.0, d01.y, 0.0); glVertex2f(x, y + h);
+=======
+                d00 = f3(0, 00);
+                d01 = f3(0, 00);
+                d10 = f3(0, 00);
+                d11 = f3(0, 00);
+                glColor3f(0.0, d00.x, 0.0); glVertex2f(x, y);
+                glColor3f(0.0, d10.x, 0.0); glVertex2f(x + h, y);
+                glColor3f(0.0, d11.x, 0.0); glVertex2f(x + h, y + h);
+                glColor3f(0.0, d01.x, 0.0); glVertex2f(x, y + h);
+>>>>>>> 2b31b9ee5a02e628a1cd5ebae7c2189ae02d3a62
             }
             else {
                 d00 = ink[(q_ink) % 1][j][i];
@@ -304,6 +344,14 @@ static void draw_density(void)
                 d10 = ink[(q_ink) % 1][j][i + 1];
                 d11 = ink[(q_ink) % 1][j + 1][i + 1];
 
+<<<<<<< HEAD
+=======
+                /*glColor3f(d00.x, d00.y, d00.z); glVertex2f(x, y);
+                glColor3f(d10.x, d10.y, d10.z); glVertex2f(x + h, y);
+                glColor3f(d11.x, d11.y, d11.z); glVertex2f(x + h, y + h);
+                glColor3f(d01.x, d01.y, d01.z); glVertex2f(x, y + h);*/
+
+>>>>>>> 2b31b9ee5a02e628a1cd5ebae7c2189ae02d3a62
                 glColor3f(d00.x, d00.y, d00.z); glVertex2f(x, y);
                 glColor3f(d10.x, d10.y, d10.z); glVertex2f(x + h, y);
                 glColor3f(d11.x, d11.y, d11.z); glVertex2f(x + h, y + h);
@@ -638,6 +686,7 @@ int main(int argc, char** argv)
 
 void update_grid(f3 u[NUM_ROW][NUM_COL], f3 u_temp[NUM_ROW][NUM_COL], f3 p[NUM_ROW][NUM_COL], f3 divergence_u[NUM_ROW][NUM_COL], float timestep, float epsilon) {
 
+<<<<<<< HEAD
     // Apply the first 3 operators in Equation 12. 
     advect(u_temp, u, u, timestep, 1);
 
@@ -661,6 +710,22 @@ void update_grid(f3 u[NUM_ROW][NUM_COL], f3 u_temp[NUM_ROW][NUM_COL], f3 p[NUM_R
     computePressure(p, u, divergence_u, timestep);
 
     subtractPressureGradient(u_temp, u, p);
+=======
+    // velocity update
+    addForces(u, timestep);
+    diffuse(u_temp, u, epsilon, timestep);
+    divergence(divergence_u, u);
+    computePressure(p, u, divergence_u, timestep);
+    subtractPressureGradient(u_temp, u, p);
+    advect(u, u_temp, u_temp, timestep, 1);
+
+    // density step
+    diffuse(ink[(q_ink + 1) % 1], ink[q_ink % 1], epsilon, timestep);
+    q_ink = (q_ink + 1) % 1;
+
+    advect_density(ink[(q_ink + 1) % 1], u_temp, ink[q_ink % 1], timestep, 1);
+    q_ink = (q_ink + 1) % 1;
+>>>>>>> 2b31b9ee5a02e628a1cd5ebae7c2189ae02d3a62
 }
 
 //void advect(float2 coords : WPOS,   // grid coordinates     
@@ -702,15 +767,25 @@ void advect(f3 u[NUM_ROW][NUM_COL], f3 u1[NUM_ROW][NUM_COL], f3 X[NUM_ROW][NUM_C
     // upper + lower border
     for (int x = 0; x < NUM_COL; x++) {
         //upper border
+<<<<<<< HEAD
         u[0][x] =  -u[1][x];
 
         //lower border
         u[NUM_ROW - 1][x] = -u[NUM_ROW - 2][x];
+=======
+        u[0][x].x = -u[1][x].x;
+        u[0][x].y = u[1][x].y;
+
+        //lower border
+        u[NUM_ROW - 1][x].x = -u[NUM_ROW - 2][x].x;
+        u[NUM_ROW - 1][x].y = u[NUM_ROW - 2][x].y;
+>>>>>>> 2b31b9ee5a02e628a1cd5ebae7c2189ae02d3a62
     }
 
     //left + right border
     for (int y = 0; y < NUM_ROW; y++) {
         //left border
+<<<<<<< HEAD
         u[y][0] = -u[y][1];
 
         //right border
@@ -722,6 +797,71 @@ void advect(f3 u[NUM_ROW][NUM_COL], f3 u1[NUM_ROW][NUM_COL], f3 X[NUM_ROW][NUM_C
     u[NUM_ROW - 1][0]           = (u[NUM_ROW - 1][1] + u[NUM_ROW - 2][0]) / 3;
     u[0][NUM_COL - 1]           = (u[0][NUM_COL - 2] + u[1][NUM_COL - 1]) / 3;
     u[NUM_ROW - 1][NUM_COL - 1]  = (u[NUM_ROW - 1][NUM_COL - 2] + u[NUM_ROW - 2][NUM_COL - 1]) / 3;
+=======
+        u[y][0].x = u[y][1].x;
+        u[y][0].y = -u[y][1].y;
+
+        //right border
+        u[y][NUM_COL - 1].x = u[y][NUM_COL - 2].x;
+        u[y][NUM_COL - 1].y = -u[y][NUM_COL - 2].y;
+    }
+
+    u[0][0] = 0.5f * (u[0][1] + u[1][0]);
+    u[NUM_ROW - 1][0] = 0.5f * (u[NUM_ROW - 1][1] + u[NUM_ROW - 2][0]);
+    u[0][NUM_COL - 1] = 0.5f * (u[0][NUM_COL - 2] + u[1][NUM_COL - 1]);
+    u[NUM_ROW - 1][NUM_COL - 1] = 0.5f * (u[NUM_ROW - 1][NUM_COL - 2] + u[NUM_ROW - 2][NUM_COL - 1]);
+}
+
+void advect_density(f3 u[NUM_ROW][NUM_COL], f3 u1[NUM_ROW][NUM_COL], f3 X[NUM_ROW][NUM_COL], float timestep, float gain) {
+
+    // inner elements
+    for (int x = 1; x < NUM_COL - 1; x++) {
+        for (int y = 1; y < NUM_ROW - 1; y++) {
+            // follow the velocity field "back in time" 
+            float x_old = (x - (u1[y][x].x * timestep * NUM_COL)); if (x_old < 0.5) x_old = 0.5; if (x_old > NUM_COL - 1.5) x_old = NUM_COL - 1.5;
+            float y_old = (y - (u1[y][x].y * timestep * NUM_ROW)); if (y_old < 0.5) y_old = 0.5; if (y_old > NUM_ROW - 1.5) y_old = NUM_ROW - 1.5;
+
+
+            int y_1 = (int)(y_old);
+            int y_2 = y_1 + 1;
+            int x_1 = (int)(x_old);
+            int x_2 = x_1 + 1;
+
+
+            // interpolate and update u
+            float p_x = x_old - (int)x_old, p_y = y_old - (int)y_old;
+
+            u[y][x] = (1 - p_y) * ((1 - p_x) * X[y_1][x_1] + (p_x)*X[y_1][x_2]) + (p_y) * ((1 - p_x) * X[y_2][x_1] + (p_x)*X[y_2][x_2]);
+        }
+    }
+
+    // upper + lower border
+    for (int x = 0; x < NUM_COL; x++) {
+        //upper border
+        u[0][x].x = u[1][x].x;
+        u[0][x].y = u[1][x].y;
+
+        //lower border
+        u[NUM_ROW - 1][x].x = u[NUM_ROW - 2][x].x;
+        u[NUM_ROW - 1][x].y = u[NUM_ROW - 2][x].y;
+    }
+
+    //left + right border
+    for (int y = 0; y < NUM_ROW; y++) {
+        //left border
+        u[y][0].x = u[y][1].x;
+        u[y][0].y = u[y][1].y;
+
+        //right border
+        u[y][NUM_COL - 1].x = u[y][NUM_COL - 2].x;
+        u[y][NUM_COL - 1].y = u[y][NUM_COL - 2].y;
+    }
+
+    u[0][0] = 0.5f * (u[0][1] + u[1][0]);
+    u[NUM_ROW - 1][0] = 0.5f * (u[NUM_ROW - 1][1] + u[NUM_ROW - 2][0]);
+    u[0][NUM_COL - 1] = 0.5f * (u[0][NUM_COL - 2] + u[1][NUM_COL - 1]);
+    u[NUM_ROW - 1][NUM_COL - 1] = 0.5f * (u[NUM_ROW - 1][NUM_COL - 2] + u[NUM_ROW - 2][NUM_COL - 1]);
+>>>>>>> 2b31b9ee5a02e628a1cd5ebae7c2189ae02d3a62
 }
 
 void jacobi_borderConditions(f3 u[NUM_ROW][NUM_COL], int sign) {
@@ -790,8 +930,19 @@ void jacobi_diffuse(f3 xNew[NUM_ROW][NUM_COL], f3 guess[NUM_ROW][NUM_COL], f3 b[
 
 void diffuse(f3 u[NUM_ROW][NUM_COL], f3 u1[NUM_ROW][NUM_COL], float diffusion_rate, float timestep) {
 
+<<<<<<< HEAD
     //compute inner elements
     jacobi_diffuse(u, u1, u1, 50, timestep * diffusion_rate);
+=======
+    for (int x = 0; x < NUM_COL; x++) {
+        for (int y = 0; y < NUM_ROW; y++) {
+            U_b[y][x] = u1[y][x];
+        }
+    }
+
+    //compute inner elements
+    jacobi_diffuse(u, u1, U_b, diffusion_iter, timestep * diffusion_rate);
+>>>>>>> 2b31b9ee5a02e628a1cd5ebae7c2189ae02d3a62
 }
 
 void addForces(f3 u[NUM_ROW][NUM_COL], float timestep) {
@@ -801,6 +952,12 @@ void addForces(f3 u[NUM_ROW][NUM_COL], float timestep) {
     while (!queueEmpty()) {
         f = force_dequeue();
         impulse = f->force * timestep;
+<<<<<<< HEAD
+=======
+        int x = (float)f->position.x;
+        int y = (float)(f->position.y);
+        //u[y][x] = u[y][x] + impulse;
+>>>>>>> 2b31b9ee5a02e628a1cd5ebae7c2189ae02d3a62
         for (int x = 1; x < NUM_COL - 1; x++) {
             for (int y = 1; y < NUM_ROW - 1; y++) {
                 f3 pt = { (float)x, (float)y };
@@ -824,6 +981,10 @@ void addForces(f3 u[NUM_ROW][NUM_COL], float timestep) {
                 float effect = (float)exp(-pt.dist(f->position) / f->impulseRadius);
                 tmp = (effect * impulse);
                 ink[(q_ink + 1) % 1][y][x] = ink[(q_ink + 1) % 1][y][x] + f3::abs(tmp);
+<<<<<<< HEAD
+=======
+                ink[(q_ink + 1) % 1][y][x].cap(1);
+>>>>>>> 2b31b9ee5a02e628a1cd5ebae7c2189ae02d3a62
             }
         }
         free(f);
@@ -837,8 +998,13 @@ void divergence(f3 div_f[NUM_ROW][NUM_COL], f3 f[NUM_ROW][NUM_COL]) {
     // inner elements
     for (int x = 1; x < NUM_COL; x++) {
         for (int y = 1; y < NUM_ROW; y++) {
+<<<<<<< HEAD
             div_f[y][x].x = (f[y][x + 1].x - f[y][x - 1].x) / (float)2.0;
             div_f[y][x].x = (f[y - 1][x].y - f[y + 1][x].y) / (float)2.0;
+=======
+            div_f[y][x].x = (f[y][x + 1].x - f[y][x - 1].x) / (float)(-2.0 * NUM_COL);
+            div_f[y][x].y = (f[y + 1][x].y - f[y - 1][x].y) / (float)(-2.0 * NUM_ROW);
+>>>>>>> 2b31b9ee5a02e628a1cd5ebae7c2189ae02d3a62
         }
     }
 
@@ -906,6 +1072,7 @@ void jacobi_pressure(f3 xNew[NUM_ROW][NUM_COL], f3 X[NUM_ROW][NUM_COL], f3 b[NUM
 
 
 void computePressure(f3 p[NUM_ROW][NUM_COL], f3 u[NUM_ROW][NUM_COL], f3 divergence_u[NUM_ROW][NUM_COL], float timestep) {
+<<<<<<< HEAD
     jacobi_pressure(p, P_guess, divergence_u, 40, timestep);
 
     //// upper + lower border
@@ -925,15 +1092,53 @@ void computePressure(f3 p[NUM_ROW][NUM_COL], f3 u[NUM_ROW][NUM_COL], f3 divergen
     //    //right border
     //    p[y][NUM_COL - 1] = p[y][NUM_COL - 2];
     //}
+=======
+    jacobi_pressure(p, P_guess, divergence_u, pressure_iter, timestep);
+
+
+>>>>>>> 2b31b9ee5a02e628a1cd5ebae7c2189ae02d3a62
 }
 
 
 void subtractPressureGradient(f3 u[NUM_ROW][NUM_COL], f3 u1[NUM_ROW][NUM_COL], f3 p[NUM_ROW][NUM_COL]) {
     for (int y = 1; y < NUM_ROW - 1; y++) {
         for (int x = 1; x < NUM_COL - 1; x++) {
+<<<<<<< HEAD
             u[y][x] = u1[y][x] - f3(p[y][x + 1].x - p[y][x - 1].x, p[y - 1][x].y - p[y + 1][x].y);
         }
     }
+=======
+            u[y][x] = u1[y][x] - 0.5 * NUM_COL * f3(p[y][x + 1].x - p[y][x - 1].x, p[y + 1][x].y - p[y - 1][x].y);
+        }
+    }
+
+    // upper + lower border
+    for (int x = 0; x < NUM_COL; x++) {
+        //upper border
+        u[0][x].x = -u[1][x].x;
+        u[0][x].y = u[1][x].y;
+
+        //lower border
+        u[NUM_ROW - 1][x].x = -u[NUM_ROW - 2][x].x;
+        u[NUM_ROW - 1][x].y = u[NUM_ROW - 2][x].y;
+    }
+
+    //left + right border
+    for (int y = 0; y < NUM_ROW; y++) {
+        //left border
+        u[y][0].x = u[y][1].x;
+        u[y][0].y = -u[y][1].y;
+
+        //right border
+        u[y][NUM_COL - 1].x = u[y][NUM_COL - 2].x;
+        u[y][NUM_COL - 1].y = -u[y][NUM_COL - 2].y;
+    }
+
+    u[0][0] = 0.5f * (u[0][1] + u[1][0]);
+    u[NUM_ROW - 1][0] = 0.5f * (u[NUM_ROW - 1][1] + u[NUM_ROW - 2][0]);
+    u[0][NUM_COL - 1] = 0.5f * (u[0][NUM_COL - 2] + u[1][NUM_COL - 1]);
+    u[NUM_ROW - 1][NUM_COL - 1] = 0.5f * (u[NUM_ROW - 1][NUM_COL - 2] + u[NUM_ROW - 2][NUM_COL - 1]);
+>>>>>>> 2b31b9ee5a02e628a1cd5ebae7c2189ae02d3a62
 }
 
 /**
@@ -945,4 +1150,8 @@ void addExternalForce(f3 force, f3 position, float impulseRadius) {
 
 void addInk(f3 force, f3 position, float impulseRadius) {
     ink_enqueue(force, position, impulseRadius);
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 2b31b9ee5a02e628a1cd5ebae7c2189ae02d3a62
