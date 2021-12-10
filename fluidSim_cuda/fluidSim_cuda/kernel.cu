@@ -3,9 +3,8 @@
 #include <string.h>
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-#include <device_functions.h>
 #include <cuda_runtime_api.h>
-
+#include <time.h>
 
 #define IX(i,j) ((i)+(N+2)*(j))
 #define SWAP(x0,x) {float * tmp=x0;x0=x;x=tmp;}
@@ -15,126 +14,138 @@ __global__ void add_source(float* x, float* s, float dt, int size)
     int idx = (blockIdx.x * blockDim.x + threadIdx.x);
 
     if (idx < size) {
-        x[idx] += dt * 1;// s[idx];
+        x[idx] += dt * s[idx];
     }
-}
-
-__global__ void test_setbnd(int N, int b, float* x, int index, int elementsPerThread) {
-    set_bnd(N, b, x, index, elementsPerThread);
 }
 
 __device__ void set_bnd(int N, int b, float* x, int index, int elementsPerThread)
 {
-    int i = (blockIdx.x * blockDim.x + threadIdx.x) * elementsPerThread;
-    if (i > N) {
+    int i = index + 1;
+    if (i > N + 1) {
         return;
     }
 
-   int size = (N + 2) * (N + 2);
-   index = i;
+    int size = (N + 2) * (N + 2);
 
-   while (i < (index + elementsPerThread) && i < N + 2) {
+    while (i < (index + elementsPerThread) && i <= N + 1) {
         x[IX(0, i)] = b == 1 ? -x[IX(1, i)] : x[IX(1, i)];
         x[IX(N + 1, i)] = b == 1 ? -x[IX(N, i)] : x[IX(N, i)];
         x[IX(i, 0)] = b == 2 ? -x[IX(i, 1)] : x[IX(i, 1)];
         x[IX(i, N + 1)] = b == 2 ? -x[IX(i, N)] : x[IX(i, N)];
         i++;
-   }
-
-   if (index == 0) {
-       x[IX(0, 0)] = 0.5f * (x[IX(1, 0)] + x[IX(0, 1)]);
-       x[IX(0, N + 1)] = 0.5f * (x[IX(1, N + 1)] + x[IX(0, N)]);
-       x[IX(N + 1, 0)] = 0.5f * (x[IX(N, 0)] + x[IX(N + 1, 1)]);
-       x[IX(N + 1, N + 1)] = 0.5f * (x[IX(N, N + 1)] + x[IX(N + 1, N)]);
-   }
-}
-
-__global__ void lin_solve(int N, int b, float* x, float* x0, float a, float c)
-{
-    int i, j, k;
-    int idx = (blockIdx.x * blockDim.x + threadIdx.x);
-    if (idx > (N + 2) * (N + 2)) {
-        return;
     }
 
-    j = idx / N;
-    i = idx % N;
+    __syncthreads();
+
+    if (index == 0) {
+        x[IX(0, 0)] = 0.5f * (x[IX(1, 0)] + x[IX(0, 1)]);
+        x[IX(0, N + 1)] = 0.5f * (x[IX(1, N + 1)] + x[IX(0, N)]);
+        x[IX(N + 1, 0)] = 0.5f * (x[IX(N, 0)] + x[IX(N + 1, 1)]);
+        x[IX(N + 1, N + 1)] = 0.5f * (x[IX(N, N + 1)] + x[IX(N + 1, N)]);
+    }
+}
+
+__global__ void lin_solve(int N, int b, float* x, float* x0, float a, float c, int elementPerThread)
+{
+    int i, j, k, idxNew;
+    int idx = (blockIdx.x * blockDim.x + threadIdx.x) * elementPerThread;
+
+    if (idx >= N * N) {
+        return;
+    }
 
     for (k = 0; k < 20; k++)
     {
-        x[IX(i, j)] = (x0[IX(i, j)] + a * (x[IX(i - 1, j)] + x[IX(i + 1, j)] + x[IX(i, j - 1)] + x[IX(i, j + 1)])) / c;
+        idxNew = idx;
+        while (idxNew < idx + elementPerThread && idxNew < N * N) {
+            j = idxNew / N + 1;
+            i = idxNew % N + 1;
+            x[IX(i, j)] = (x0[IX(i, j)] + a * (x[IX(i - 1, j)] + x[IX(i + 1, j)] + x[IX(i, j - 1)] + x[IX(i, j + 1)])) / c;
+            idxNew++;
+        }
         __syncthreads();
-         set_bnd(N, b, x, idx);
-        __syncthreads();
+        set_bnd(N, b, x, idx, elementPerThread);
     }
 }
 
 
-__global__ void advect(int N, int b, float* d, float* d0, float* u, float* v, float dt)
+__global__ void advect(int N, int b, float* d, float* d0, float* u, float* v, float dt, int elementPerThread)
 {
-    int idx = (blockIdx.x * blockDim.x + threadIdx.x);
+    int idx = (blockIdx.x * blockDim.x + threadIdx.x) * elementPerThread;
 
-    if (idx > (N + 2) * (N + 2)) {
+    if (idx >= N * N) {
         return;
     }
 
-    int j = idx / N;
-    int i = idx % N;
+    int idxNew = idx;
+    while (idxNew < idx + elementPerThread && idxNew < N * N) {
+        int j = idxNew / N + 1;
+        int i = idxNew % N + 1;
 
-    int i0, j0, i1, j1;
-    float x, y, s0, t0, s1, t1, dt0;
+        int i0, j0, i1, j1;
+        float x, y, s0, t0, s1, t1, dt0;
 
-    dt0 = dt * N;
+        dt0 = dt * N;
         x = i - dt0 * u[IX(i, j)]; y = j - dt0 * v[IX(i, j)];
-    if (x < 0.5f) x = 0.5f; if (x > N + 0.5f) x = N + 0.5f; i0 = (int)x; i1 = i0 + 1;
-    if (y < 0.5f) y = 0.5f; if (y > N + 0.5f) y = N + 0.5f; j0 = (int)y; j1 = j0 + 1;
-    s1 = x - i0; s0 = 1 - s1; t1 = y - j0; t0 = 1 - t1;
-    d[IX(i, j)] = s0 * (t0 * d0[IX(i0, j0)] + t1 * d0[IX(i0, j1)]) +
-        s1 * (t0 * d0[IX(i1, j0)] + t1 * d0[IX(i1, j1)]);
+        if (x < 0.5f) x = 0.5f; if (x > N + 0.5f) x = N + 0.5f; i0 = (int)x; i1 = i0 + 1;
+        if (y < 0.5f) y = 0.5f; if (y > N + 0.5f) y = N + 0.5f; j0 = (int)y; j1 = j0 + 1;
+        s1 = x - i0; s0 = 1 - s1; t1 = y - j0; t0 = 1 - t1;
 
+        d[IX(i, j)] =  s0* (t0 * d0[IX(i0, j0)] + t1 * d0[IX(i0, j1)]) +
+            s1 * (t0 * d0[IX(i1, j0)] + t1 * d0[IX(i1, j1)]);
+
+        idxNew++;
+    }
+    
     __syncthreads();
-    set_bnd(N, b, d, idx);
+    set_bnd(N, b, d, idx, elementPerThread);
 }
 
 
-__global__ void project1(int N, float* u, float* v, float* p, float* div)
+__global__ void project1(int N, float* u, float* v, float* p, float* div, int elementPerThread)
 {
-    int idx = (blockIdx.x * blockDim.x + threadIdx.x);
+    int idx = (blockIdx.x * blockDim.x + threadIdx.x) * elementPerThread;
 
-    if (idx > (N + 2) * (N + 2)) {
+    if (idx >= N * N) {
         return;
     }
 
-    int j = idx / N;
-    int i = idx % N;
+    int idxNew = idx;
+    while (idxNew < idx + elementPerThread && idxNew < N * N) {
+        int j = idxNew / N + 1;
+        int i = idxNew % N + 1;
 
         div[IX(i, j)] = -0.5f * (u[IX(i + 1, j)] - u[IX(i - 1, j)] + v[IX(i, j + 1)] - v[IX(i, j - 1)]) / N;
         p[IX(i, j)] = 0;
+        idxNew++;
+    }
 
-        __syncthreads();
-        set_bnd(N, 0, div, idx); 
-        __syncthreads();
-        set_bnd(N, 0, p, idx);
+    __syncthreads();
+    set_bnd(N, 0, div, idx, elementPerThread);
+    set_bnd(N, 0, p, idx, elementPerThread);
 }
 
-__global__ void project3(int N, float* u, float* v, float* p, float* div)
+__global__ void project3(int N, float* u, float* v, float* p, int elementPerThread)
 {
-    int idx = (blockIdx.x * blockDim.x + threadIdx.x);
+    int idx = (blockIdx.x * blockDim.x + threadIdx.x) * elementPerThread;
 
-    if (idx > (N + 2) * (N + 2)) {
+    if (idx >= N * N) {
         return;
     }
 
-    int j = idx / N;
-    int i = idx % N;
+    int idxNew = idx;
+    while (idxNew < idx + elementPerThread && idxNew < N * N) {
+        int j = idxNew / N + 1;
+        int i = idxNew % N + 1;
 
         u[IX(i, j)] -= 0.5f * N * (p[IX(i + 1, j)] - p[IX(i - 1, j)]);
-    v[IX(i, j)] -= 0.5f * N * (p[IX(i, j + 1)] - p[IX(i, j - 1)]);
+        v[IX(i, j)] -= 0.5f * N * (p[IX(i, j + 1)] - p[IX(i, j - 1)]);
 
+        idxNew++;
+    }
     __syncthreads();
-    set_bnd(N, 1, u, idx); 
-    __syncthreads();
-    set_bnd(N, 2, v, idx);
+    set_bnd(N, 1, u, idx, elementPerThread);
+    set_bnd(N, 2, v, idx, elementPerThread);
 }
 
 void get_from_UI(float* d, float* u, float* v, int force, int source, int N)
@@ -146,8 +157,8 @@ void get_from_UI(float* d, float* u, float* v, int force, int source, int N)
         u[i] = v[i] = d[i] = 0.0f;
     }
 
-    i = N / 2;
-    j = N / 2;
+    i = (N+2) / 2;
+    j = (N+2) / 2;
 
     if (i < 1 || i > N || j < 1 || j > N)
         return;
@@ -161,42 +172,45 @@ void get_from_UI(float* d, float* u, float* v, int force, int source, int N)
 
 static void printFrameMatrices(float* dens, float* u, float* v, int N)
 {
-        printf("Density Matrix:\t\t\t\t\tVelocity U Matrix:\t\t\t\t\tVelocity V Matrix:\n");
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++)
-            {
-                printf("%f, ", dens[IX(i, j)]);
-            }
-            printf("\t\t");
-            for (int j = 0; j < N; j++)
-            {
-                printf("%f, ", u[IX(i, j)]);
-            }
-            printf("\t\t");
-            for (int j = 0; j < N; j++)
-            {
-                printf("%f, ", v[IX(i, j)]);
-            }
-            printf("\n");
+    printf("Density Matrix:\t\t\t\t\t\t\tVelocity U Matrix:\t\t\t\t\t\tVelocity V Matrix:\n");
+    for (int i = 0; i <= N + 1; i++) {
+        for (int j = 0; j <= N + 1; j++)
+        {
+            printf("%f, ", dens[IX(i, j)]);
         }
+        printf("\t");
+        for (int j = 0; j <= N + 1; j++)
+        {
+            printf("%f, ", u[IX(i, j)]);
+        }
+        printf("\t");
+        for (int j = 0; j <= N + 1; j++)
+        {
+            printf("%f, ", v[IX(i, j)]);
+        }
+        printf("\n");
+    }
 }
 
 int main(int argc, char* argv[]) {
 
-    int N = 4;
-    float dt = 0.1f, diff = 0.0f, visc = 0.0f;
-    float force = 0.5f, source = 100.0f;
+    int N = 5;
+    float dt = 0.1f, diff = 0.1f, visc = 0.1f;
+    float force = 100.0f, source = 100.0f;
 
     // Allocate space for host
     int size = (N + 2) * (N + 2);
 
     // Device copies of data
     float* u_cuda, * v_cuda, * u_prev_cuda, * v_prev_cuda;
+    float* p_cuda, * div_cuda;
     float* dens_cuda, * dens_prev_cuda;
 
     // Allocate space for device copies
     cudaMallocManaged(&u_cuda, sizeof(float) * size);
     cudaMallocManaged(&v_cuda, sizeof(float) * size);
+    cudaMallocManaged(&p_cuda, sizeof(float) * size);
+    cudaMallocManaged(&div_cuda, sizeof(float) * size);
     cudaMallocManaged(&u_prev_cuda, sizeof(float) * size);
     cudaMallocManaged(&v_prev_cuda, sizeof(float) * size);
     cudaMallocManaged(&dens_cuda, sizeof(float) * size);
@@ -204,87 +218,109 @@ int main(int argc, char* argv[]) {
 
     cudaMemset(u_cuda, 0, sizeof(float) * size);
     cudaMemset(v_cuda, 0, sizeof(float) * size);
+    cudaMemset(p_cuda, 0, sizeof(float) * size);
+    cudaMemset(div_cuda, 0, sizeof(float) * size);
     cudaMemset(u_prev_cuda, 0, sizeof(float) * size);
     cudaMemset(v_prev_cuda, 0, sizeof(float) * size);
     cudaMemset(dens_cuda, 0, sizeof(float) * size);
     cudaMemset(dens_prev_cuda, 0, sizeof(float) * size);
 
     // have copy of host data
-    get_from_UI(dens_cuda, u_prev_cuda, v_prev_cuda, force, source, N);
+    get_from_UI(dens_prev_cuda, u_prev_cuda, v_prev_cuda, force, source, N);
 
 
     // Parallelize computation :: TODO update values to match
-    int num_threads = (N + 2);
-    int num_blocks = (N + 2);
+    int num_threads_source = (N + 2);
+    int num_blocks_source = (N + 2);
+    int num_threads = 2;
+    int elementsPerThread = (N * N + 1) / num_threads;
 
-    //cudaStream_t stream1, stream2, stream3;
-    //cudaStreamCreate(&stream1);
-    //cudaStreamCreate(&stream2);
-    //cudaStreamCreate(&stream3);
+    cudaStream_t stream1, stream2, stream3;
+    cudaStreamCreate(&stream1);
+    cudaStreamCreate(&stream2);
+    cudaStreamCreate(&stream3);
 
-    //// Velocity timestep parallelization
-    add_source <<< num_blocks, num_threads>>> (u_cuda, u_prev_cuda, dt, size);
-    add_source <<< num_blocks, num_threads>>> (v_cuda, v_prev_cuda, dt, size);
-    add_source <<< num_blocks, num_threads>>> (dens_cuda, dens_prev_cuda, dt, size);
-    cudaDeviceSynchronize();
+    puts("before add source");
+    printFrameMatrices(dens_cuda, u_cuda, v_cuda, N);
 
-    SWAP(u_prev_cuda, u_cuda);
-    SWAP(v_prev_cuda, v_cuda);
-    printf("%f\n", dens_prev_cuda[IX(0, 0)]);
-    SWAP(dens_prev_cuda, dens_cuda);
-    printf("%f\n", dens_prev_cuda[IX(0, 0)]);
+
+    int numIterations = 10;
+    for (int i = 0; i < numIterations; i++) {
+
+        //// Velocity timestep parallelization
+        add_source <<< num_blocks_source, num_threads_source >>> (u_cuda, u_prev_cuda, dt, size);
+        add_source <<< num_blocks_source, num_threads_source >>> (v_cuda, v_prev_cuda, dt, size);
+        add_source <<< num_blocks_source, num_threads_source >>> (dens_cuda, dens_prev_cuda, dt, size);
+        cudaDeviceSynchronize();
+
+        /*puts("after add source");
+        printFrameMatrices(dens_cuda, u_cuda, v_cuda, N);*/
+
+        SWAP(u_prev_cuda, u_cuda);
+        SWAP(v_prev_cuda, v_cuda);
+        SWAP(dens_prev_cuda, dens_cuda);
+
+        //// diffuse
+        float a = dt * visc * N * N;
+        lin_solve << < 1, num_threads, 0, stream1 >> > (N, 1, u_cuda, u_prev_cuda, a, 1 + 4 * a, elementsPerThread); // diffuse u_cuda
+        lin_solve << < 1, num_threads, 0, stream2 >> > (N, 2, v_cuda, v_prev_cuda, a, 1 + 4 * a, elementsPerThread); // diffuse v_cuda
+
+        a = dt * diff * N * N;
+        lin_solve << < 1, num_threads, 0, stream3 >> > (N, 0, dens_cuda, dens_prev_cuda, a, 1 + 4 * a, elementsPerThread); // diffuse dens_cuda
+        cudaDeviceSynchronize();
+
+
+   /*     puts("after diffuse");
+        printFrameMatrices(dens_cuda, u_cuda, v_cuda, N);*/
+
+        // projection step (no swapping beforehand)
+        project1 << < 1, num_threads >> > (N, u_cuda, v_cuda, p_cuda, div_cuda, elementsPerThread);
+        cudaDeviceSynchronize();
+        lin_solve << < 1, num_threads >> > (N, 0, p_cuda, div_cuda, 1, 4, elementsPerThread);
+        cudaDeviceSynchronize();
+        project3 << < 1, num_threads >> > (N, u_cuda, v_cuda, p_cuda, elementsPerThread);
+        cudaDeviceSynchronize();
+
+     /*   puts("after project 1");
+        printFrameMatrices(dens_cuda, u_cuda, v_cuda, N);*/
+
+        SWAP(u_prev_cuda, u_cuda);
+        SWAP(v_prev_cuda, v_cuda);
     
-    printFrameMatrices(dens_cuda, u_cuda, v_cuda, N);
-    printf("\n");
-    test_setbnd <<<num_blocks, num_threads>> >(N, 1, u_cuda, 4, elementsPerThread);
-    cudaDeviceSynchronize();
-    test_setbnd << <num_blocks, num_threads >> > (N, 1, v_cuda, 4, elementsPerThread);
-    cudaDeviceSynchronize();
-    test_setbnd << <num_blocks, num_threads >> > (N, 1, dens_cuda, 4, elementsPerThread);
-    cudaDeviceSynchronize();
 
-    printFrameMatrices(dens_cuda, u_cuda, v_cuda, N);
-    //// diffuse
-    //float a = dt * visc * N * N;
-    //lin_solve << < num_blocks, num_threads >> > (N, 1, u_prev_cuda, u_cuda, a, 1 + 4 * a); // diffuse u_cuda
-    //cudaDeviceSynchronize();
+        advect << < 1, num_threads, 0, stream1 >> > (N, 1, u_cuda, u_prev_cuda, u_prev_cuda, v_prev_cuda, dt, elementsPerThread);
+        advect << < 1, num_threads, 0, stream2 >> > (N, 2, v_cuda, v_prev_cuda, u_prev_cuda, v_prev_cuda, dt, elementsPerThread);
+        cudaDeviceSynchronize();
 
-    //lin_solve << < num_blocks, num_threads >> > (N, 2, v_prev_cuda, v_cuda, a, 1 + 4 * a); // diffuse v_cuda
-    //a = dt * diff * N * N;
-    //lin_solve << < num_blocks, num_threads >> > (N, 0, dens_prev_cuda, dens_cuda, a, 1 + 4 * a); // diffuse dens_cuda
-    //cudaDeviceSynchronize();
-
-    //project1 << < num_blocks, num_threads >> > (N, u_cuda, v_cuda, u_prev_cuda, v_prev_cuda);
-    //cudaDeviceSynchronize();
-
-    //lin_solve << < num_blocks, num_threads >> > (N, 0, u_prev_cuda, v_prev_cuda, 1, 4);
-    //cudaDeviceSynchronize();
-
-    //project3 << < num_blocks, num_threads >> > (N, u_cuda, v_cuda, u_prev_cuda, v_prev_cuda);
-    //cudaDeviceSynchronize();
-
-    //SWAP(dens_prev_cuda, dens_cuda);
-    //SWAP(u_prev_cuda, u_cuda);
-    //SWAP(v_prev_cuda, v_cuda);
+      /*  puts("after advect (only velocities)");
+        printFrameMatrices(dens_cuda, u_cuda, v_cuda, N);*/
 
 
-    //advect << < num_blocks, num_threads >> > (N, 1, u_cuda, u_prev_cuda, u_prev_cuda, v_prev_cuda, dt);
-    //advect << < num_blocks, num_threads >> > (N, 2, v_cuda, v_prev_cuda, u_prev_cuda, v_prev_cuda, dt);
-    //cudaDeviceSynchronize();
+        // projection step (no swapping beforehand)
+        project1 << < 1, num_threads >> > (N, u_cuda, v_cuda, p_cuda, div_cuda, elementsPerThread);
+        cudaDeviceSynchronize();
+        lin_solve << < 1, num_threads >> > (N, 0, p_cuda, div_cuda, 1, 4, elementsPerThread);
+        cudaDeviceSynchronize();
+        project3 << < 1, num_threads >> > (N, u_cuda, v_cuda, p_cuda, elementsPerThread);
+        cudaDeviceSynchronize();
 
-    //project1 << < num_blocks, num_threads >> > (N, u_cuda, v_cuda, u_prev_cuda, v_prev_cuda);
-    //cudaDeviceSynchronize();
-    //lin_solve << < num_blocks, num_threads >> > (N, 0, u_prev_cuda, v_prev_cuda, 1, 4);
-    //cudaDeviceSynchronize();
-    //project3 << < num_blocks, num_threads >> > (N, u_cuda, v_cuda, u_prev_cuda, v_prev_cuda);
-    //cudaDeviceSynchronize();
+        //puts("after project 2");
+        //printFrameMatrices(dens_cuda, u_cuda, v_cuda, N);
 
-    //// Density timestep parallelization
-    //advect << < num_blocks, num_threads >> > (N, 0, dens_cuda, dens_prev_cuda, u_cuda, v_cuda, dt);
-    //cudaDeviceSynchronize();
 
-    // Copy result back to host
-    printf("%f\n", dens_cuda[IX(0, 0)]);
+    
+
+        // Density timestep parallelization
+        SWAP(dens_prev_cuda, dens_cuda);
+        advect << < 1, num_threads >> > (N, 0, dens_cuda, dens_prev_cuda, u_cuda, v_cuda, dt, elementsPerThread);
+        cudaDeviceSynchronize();
+
+        // Copy result back to host
+        puts("after advect (density)");
+        printFrameMatrices(dens_cuda, u_cuda, v_cuda, N);
+
+        puts("\n");
+    }
 
     // Free Device space
     cudaFree(u_cuda);
@@ -293,6 +329,11 @@ int main(int argc, char* argv[]) {
     cudaFree(dens_cuda);
     cudaFree(dens_prev_cuda);
     cudaFree(v_prev_cuda);
+
+    // Destroy cuda streams
+    cudaStreamDestroy(stream1);
+    cudaStreamDestroy(stream2);
+    cudaStreamDestroy(stream3);
 
     return 0;
 }
