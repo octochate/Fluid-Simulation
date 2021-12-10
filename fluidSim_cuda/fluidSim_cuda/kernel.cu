@@ -19,25 +19,36 @@ __global__ void add_source(float* x, float* s, float dt, int size)
     }
 }
 
-__device__ void set_bnd(int N, int b, float* x, int index)
+__global__ void test_setbnd(int N, int b, float* x, int index, int elementsPerThread) {
+    set_bnd(N, b, x, index, elementsPerThread);
+}
+
+__device__ void set_bnd(int N, int b, float* x, int index, int elementsPerThread)
 {
-    if (index > N) {
+    int i = (blockIdx.x * blockDim.x + threadIdx.x) * elementsPerThread;
+    if (i > N) {
         return;
     }
-    int i = index;
 
-    x[IX(0, i)] = b == 1 ? -x[IX(1, i)] : x[IX(1, i)];
-    x[IX(N + 1, i)] = b == 1 ? -x[IX(N, i)] : x[IX(N, i)];
-    x[IX(i, 0)] = b == 2 ? -x[IX(i, 1)] : x[IX(i, 1)];
-    x[IX(i, N + 1)] = b == 2 ? -x[IX(i, N)] : x[IX(i, N)];
-    
-    if (index == 0) {
-        x[IX(0, 0)] = 0.5f * (x[IX(1, 0)] + x[IX(0, 1)]);
-        x[IX(0, N + 1)] = 0.5f * (x[IX(1, N + 1)] + x[IX(0, N)]);
-        x[IX(N + 1, 0)] = 0.5f * (x[IX(N, 0)] + x[IX(N + 1, 1)]);
-        x[IX(N + 1, N + 1)] = 0.5f * (x[IX(N, N + 1)] + x[IX(N + 1, N)]);
-    }
+   int size = (N + 2) * (N + 2);
+   index = i;
+
+   while (i < (index + elementsPerThread) && i < N + 2) {
+        x[IX(0, i)] = b == 1 ? -x[IX(1, i)] : x[IX(1, i)];
+        x[IX(N + 1, i)] = b == 1 ? -x[IX(N, i)] : x[IX(N, i)];
+        x[IX(i, 0)] = b == 2 ? -x[IX(i, 1)] : x[IX(i, 1)];
+        x[IX(i, N + 1)] = b == 2 ? -x[IX(i, N)] : x[IX(i, N)];
+        i++;
+   }
+
+   if (index == 0) {
+       x[IX(0, 0)] = 0.5f * (x[IX(1, 0)] + x[IX(0, 1)]);
+       x[IX(0, N + 1)] = 0.5f * (x[IX(1, N + 1)] + x[IX(0, N)]);
+       x[IX(N + 1, 0)] = 0.5f * (x[IX(N, 0)] + x[IX(N + 1, 1)]);
+       x[IX(N + 1, N + 1)] = 0.5f * (x[IX(N, N + 1)] + x[IX(N + 1, N)]);
+   }
 }
+
 __global__ void lin_solve(int N, int b, float* x, float* x0, float a, float c)
 {
     int i, j, k;
@@ -222,6 +233,17 @@ int main(int argc, char* argv[]) {
     printf("%f\n", dens_prev_cuda[IX(0, 0)]);
     SWAP(dens_prev_cuda, dens_cuda);
     printf("%f\n", dens_prev_cuda[IX(0, 0)]);
+    
+    printFrameMatrices(dens_cuda, u_cuda, v_cuda, N);
+    printf("\n");
+    test_setbnd <<<num_blocks, num_threads>> >(N, 1, u_cuda, 4, elementsPerThread);
+    cudaDeviceSynchronize();
+    test_setbnd << <num_blocks, num_threads >> > (N, 1, v_cuda, 4, elementsPerThread);
+    cudaDeviceSynchronize();
+    test_setbnd << <num_blocks, num_threads >> > (N, 1, dens_cuda, 4, elementsPerThread);
+    cudaDeviceSynchronize();
+
+    printFrameMatrices(dens_cuda, u_cuda, v_cuda, N);
     //// diffuse
     //float a = dt * visc * N * N;
     //lin_solve << < num_blocks, num_threads >> > (N, 1, u_prev_cuda, u_cuda, a, 1 + 4 * a); // diffuse u_cuda
