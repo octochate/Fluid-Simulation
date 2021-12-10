@@ -1,4 +1,4 @@
-﻿#include <stdlib.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "cuda_runtime.h"
@@ -15,7 +15,7 @@ __global__ void add_source(float* x, float* s, float dt, int size)
     int idx = (blockIdx.x * blockDim.x + threadIdx.x);
 
     if (idx < size) {
-        x[idx] += dt * s[idx];
+        x[idx] += dt * 1;// s[idx];
     }
 }
 
@@ -203,77 +203,85 @@ int main(int argc, char* argv[]) {
     float* dens_cuda, * dens_prev_cuda;
 
     // Allocate space for device copies
-    cudaMallocManaged((void**)&u_cuda, sizeof(float));
-    cudaMallocManaged((void**)&v_cuda, sizeof(float));
-    cudaMallocManaged((void**)&u_prev_cuda, sizeof(float));
-    cudaMallocManaged((void**)&v_prev_cuda, sizeof(float));
-    cudaMallocManaged((void**)&dens_cuda, sizeof(float));
-    cudaMallocManaged((void**)&dens_prev_cuda, sizeof(float));
+    cudaMallocManaged(&u_cuda, sizeof(float) * size);
+    cudaMallocManaged(&v_cuda, sizeof(float) * size);
+    cudaMallocManaged(&u_prev_cuda, sizeof(float) * size);
+    cudaMallocManaged(&v_prev_cuda, sizeof(float) * size);
+    cudaMallocManaged(&dens_cuda, sizeof(float) * size);
+    cudaMallocManaged(&dens_prev_cuda, sizeof(float) * size);
+
+    cudaMemset(u_cuda, 0, sizeof(float) * size);
+    cudaMemset(v_cuda, 0, sizeof(float) * size);
+    cudaMemset(u_prev_cuda, 0, sizeof(float) * size);
+    cudaMemset(v_prev_cuda, 0, sizeof(float) * size);
+    cudaMemset(dens_cuda, 0, sizeof(float) * size);
+    cudaMemset(dens_prev_cuda, 0, sizeof(float) * size);
 
     // have copy of host data
-    get_from_UI(dens_cuda, u_cuda, v_cuda, force, source, N);
+    get_from_UI(dens_cuda, u_prev_cuda, v_prev_cuda, force, source, N);
 
 
     // Parallelize computation :: TODO update values to match
     int num_threads = (N + 2);
     int num_blocks = (N + 2);
 
-    cudaStream_t stream1, stream2, stream3;
-    cudaStreamCreate(&stream1);
-    cudaStreamCreate(&stream2);
-    cudaStreamCreate(&stream3);
+    //cudaStream_t stream1, stream2, stream3;
+    //cudaStreamCreate(&stream1);
+    //cudaStreamCreate(&stream2);
+    //cudaStreamCreate(&stream3);
 
-    // Velocity timestep parallelization
-    add_source <<< num_blocks, num_threads, 0, stream1>>> (u_cuda, u_prev_cuda, dt, size);
-    add_source <<< num_blocks, num_threads, 0, stream2>>> (v_cuda, v_prev_cuda, dt, size);
-    add_source <<< num_blocks, num_threads, 0, stream3>>> (dens_cuda, dens_prev_cuda, dt, size);
+    //// Velocity timestep parallelization
+    add_source <<< num_blocks, num_threads>>> (u_cuda, u_prev_cuda, dt, size);
+    add_source <<< num_blocks, num_threads>>> (v_cuda, v_prev_cuda, dt, size);
+    add_source <<< num_blocks, num_threads>>> (dens_cuda, dens_prev_cuda, dt, size);
     cudaDeviceSynchronize();
 
     SWAP(u_prev_cuda, u_cuda);
     SWAP(v_prev_cuda, v_cuda);
+    printf("%f\n", dens_prev_cuda[IX(0, 0)]);
     SWAP(dens_prev_cuda, dens_cuda);
+    printf("%f\n", dens_prev_cuda[IX(0, 0)]);
+    //// diffuse
+    //float a = dt * visc * N * N;
+    //lin_solve << < num_blocks, num_threads >> > (N, 1, u_prev_cuda, u_cuda, a, 1 + 4 * a); // diffuse u_cuda
+    //cudaDeviceSynchronize();
 
-    // diffuse
-    float a = dt * visc * N * N;
-    lin_solve << < num_blocks, num_threads >> > (N, 1, u_prev_cuda, u_cuda, a, 1 + 4 * a); // diffuse u_cuda
-    cudaDeviceSynchronize();
+    //lin_solve << < num_blocks, num_threads >> > (N, 2, v_prev_cuda, v_cuda, a, 1 + 4 * a); // diffuse v_cuda
+    //a = dt * diff * N * N;
+    //lin_solve << < num_blocks, num_threads >> > (N, 0, dens_prev_cuda, dens_cuda, a, 1 + 4 * a); // diffuse dens_cuda
+    //cudaDeviceSynchronize();
 
-    lin_solve << < num_blocks, num_threads >> > (N, 2, v_prev_cuda, v_cuda, a, 1 + 4 * a); // diffuse v_cuda
-    a = dt * diff * N * N;
-    lin_solve << < num_blocks, num_threads >> > (N, 0, dens_prev_cuda, dens_cuda, a, 1 + 4 * a); // diffuse dens_cuda
-    cudaDeviceSynchronize();
+    //project1 << < num_blocks, num_threads >> > (N, u_cuda, v_cuda, u_prev_cuda, v_prev_cuda);
+    //cudaDeviceSynchronize();
 
-    project1 << < num_blocks, num_threads >> > (N, u_cuda, v_cuda, u_prev_cuda, v_prev_cuda);
-    cudaDeviceSynchronize();
+    //lin_solve << < num_blocks, num_threads >> > (N, 0, u_prev_cuda, v_prev_cuda, 1, 4);
+    //cudaDeviceSynchronize();
 
-    lin_solve << < num_blocks, num_threads >> > (N, 0, u_prev_cuda, v_prev_cuda, 1, 4);
-    cudaDeviceSynchronize();
+    //project3 << < num_blocks, num_threads >> > (N, u_cuda, v_cuda, u_prev_cuda, v_prev_cuda);
+    //cudaDeviceSynchronize();
 
-    project3 << < num_blocks, num_threads >> > (N, u_cuda, v_cuda, u_prev_cuda, v_prev_cuda);
-    cudaDeviceSynchronize();
-
-    SWAP(dens_prev_cuda, dens_cuda);
-    SWAP(u_prev_cuda, u_cuda);
-    SWAP(v_prev_cuda, v_cuda);
+    //SWAP(dens_prev_cuda, dens_cuda);
+    //SWAP(u_prev_cuda, u_cuda);
+    //SWAP(v_prev_cuda, v_cuda);
 
 
-    advect << < num_blocks, num_threads >> > (N, 1, u_cuda, u_prev_cuda, u_prev_cuda, v_prev_cuda, dt);
-    advect << < num_blocks, num_threads >> > (N, 2, v_cuda, v_prev_cuda, u_prev_cuda, v_prev_cuda, dt);
-    cudaDeviceSynchronize();
+    //advect << < num_blocks, num_threads >> > (N, 1, u_cuda, u_prev_cuda, u_prev_cuda, v_prev_cuda, dt);
+    //advect << < num_blocks, num_threads >> > (N, 2, v_cuda, v_prev_cuda, u_prev_cuda, v_prev_cuda, dt);
+    //cudaDeviceSynchronize();
 
-    project1 << < num_blocks, num_threads >> > (N, u_cuda, v_cuda, u_prev_cuda, v_prev_cuda);
-    cudaDeviceSynchronize();
-    lin_solve << < num_blocks, num_threads >> > (N, 0, u_prev_cuda, v_prev_cuda, 1, 4);
-    cudaDeviceSynchronize();
-    project3 << < num_blocks, num_threads >> > (N, u_cuda, v_cuda, u_prev_cuda, v_prev_cuda);
-    cudaDeviceSynchronize();
+    //project1 << < num_blocks, num_threads >> > (N, u_cuda, v_cuda, u_prev_cuda, v_prev_cuda);
+    //cudaDeviceSynchronize();
+    //lin_solve << < num_blocks, num_threads >> > (N, 0, u_prev_cuda, v_prev_cuda, 1, 4);
+    //cudaDeviceSynchronize();
+    //project3 << < num_blocks, num_threads >> > (N, u_cuda, v_cuda, u_prev_cuda, v_prev_cuda);
+    //cudaDeviceSynchronize();
 
-    // Density timestep parallelization
-    advect << < num_blocks, num_threads >> > (N, 0, dens_cuda, dens_prev_cuda, u_cuda, v_cuda, dt);
-    cudaDeviceSynchronize();
+    //// Density timestep parallelization
+    //advect << < num_blocks, num_threads >> > (N, 0, dens_cuda, dens_prev_cuda, u_cuda, v_cuda, dt);
+    //cudaDeviceSynchronize();
 
     // Copy result back to host
-    printf("%f", dens_cuda[0]);
+    printf("%f\n", dens_cuda[IX(0, 0)]);
 
     // Free Device space
     cudaFree(u_cuda);
