@@ -151,42 +151,23 @@ void get_from_UI(float* d, float* u, float* v, int force, int source, int N)
 static void printFrameMatrices(float* dens, float* u, float* v, int N)
 {
         printf("Density Matrix:\t\t\t\t\tVelocity U Matrix:\t\t\t\t\tVelocity V Matrix:\n");
-        for (int j = 0; j < 1; j++)
-        {
-            printf("%f, ", dens[j * N]);
-            printf("%f, ", dens[1 + j * N]);
-            printf("%f, ", dens[2 + j * N]);
-            printf("%f", dens[3 + j * N]);
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++)
+            {
+                printf("%f, ", dens[IX(i, j)]);
+            }
             printf("\t\t");
-            printf("%f, ", u[j * N]);
-            printf("%f, ", u[1 + j * N]);
-            printf("%f, ", u[2 + j * N]);
-            printf("%f", u[3 + j * N]);
-            if (j == 1)
+            for (int j = 0; j < N; j++)
             {
-                printf("\t");
+                printf("%f, ", u[IX(i, j)]);
             }
-            else
+            printf("\t\t");
+            for (int j = 0; j < N; j++)
             {
-                printf("\t\t");
-            }
-            if (j != 1)
-            {
-                printf("%f, ", v[j * N]);
-                printf("%f, ", v[1 + j * N]);
-                printf("%f, ", v[2 + j * N]);
-                printf("%f", v[3 + j * N]);
-            }
-            else
-            {
-                printf("\t%f, ", v[j * N]);
-                printf("%f, ", v[1 + j * N]);
-                printf("%f, ", v[2 + j * N]);
-                printf("%f", v[3 + j * N]);
+                printf("%f, ", v[IX(i, j)]);
             }
             printf("\n");
         }
-        printf("\n");
 }
 
 int main(int argc, char* argv[]) {
