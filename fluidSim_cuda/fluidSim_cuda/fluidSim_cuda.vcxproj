@@ -42,8 +42,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>C:\Users\Matthias\Desktop\_ECSE420_repo\LAB3\global_queuing\</OutDir>
-    <TargetName>global_queuing</TargetName>
+    <OutDir>.</OutDir>
+    <TargetName>fluidSim_cuda</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

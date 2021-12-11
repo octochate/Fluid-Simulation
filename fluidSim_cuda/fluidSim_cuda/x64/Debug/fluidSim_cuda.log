@@ -1,46 +1,36 @@
-﻿  Compiling CUDA source file kernel.cu...
+﻿D:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(499,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
+  Compiling CUDA source file kernel.cu...
   
   C:\Users\Matthias\Desktop\_ECSE420_fluidSim\fluidSim_cuda\fluidSim_cuda>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4\bin\nvcc.exe" -gencode=arch=compute_35,code=\"sm_35,compute_35\" -gencode=arch=compute_37,code=\"sm_37,compute_37\" -gencode=arch=compute_50,code=\"sm_50,compute_50\" -gencode=arch=compute_52,code=\"sm_52,compute_52\" -gencode=arch=compute_60,code=\"sm_60,compute_60\" -gencode=arch=compute_61,code=\"sm_61,compute_61\" -gencode=arch=compute_70,code=\"sm_70,compute_70\" -gencode=arch=compute_75,code=\"sm_75,compute_75\" -gencode=arch=compute_80,code=\"sm_80,compute_80\" -gencode=arch=compute_86,code=\"sm_86,compute_86\" -gencode=arch=compute_52,code=\"sm_52,compute_52\" --use-local-env -ccbin "D:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\bin\HostX86\x64" -x cu -rdc=true  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4\include"  -G   --keep-dir x64\Debug  -maxrregcount=0  --machine 64 --compile -cudart static -arch sm_60 -g  -DWIN32 -DWIN64 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Fdx64\Debug\vc142.pdb /FS /Zi /RTC1 /MDd " -o x64\Debug\kernel.cu.obj "C:\Users\Matthias\Desktop\_ECSE420_fluidSim\fluidSim_cuda\fluidSim_cuda\kernel.cu" 
-  device_functions.h is an internal header file and must not be used directly.  This file will be removed in a future CUDA release.  Please use cuda_runtime_api.h or cuda_runtime.h instead.
-c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(151): warning : function "printFrameMatrices" was declared but never referenced
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(29): warning : variable "size" was declared but never referenced
   
-  device_functions.h is an internal header file and must not be used directly.  This file will be removed in a future CUDA release.  Please use cuda_runtime_api.h or cuda_runtime.h instead.
-c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(151): warning : function "printFrameMatrices" was declared but never referenced
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(29): warning : variable "size" was declared but never referenced
   
-  device_functions.h is an internal header file and must not be used directly.  This file will be removed in a future CUDA release.  Please use cuda_runtime_api.h or cuda_runtime.h instead.
-c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(151): warning : function "printFrameMatrices" was declared but never referenced
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(29): warning : variable "size" was declared but never referenced
   
-  device_functions.h is an internal header file and must not be used directly.  This file will be removed in a future CUDA release.  Please use cuda_runtime_api.h or cuda_runtime.h instead.
-c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(151): warning : function "printFrameMatrices" was declared but never referenced
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(29): warning : variable "size" was declared but never referenced
   
-  device_functions.h is an internal header file and must not be used directly.  This file will be removed in a future CUDA release.  Please use cuda_runtime_api.h or cuda_runtime.h instead.
-c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(151): warning : function "printFrameMatrices" was declared but never referenced
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(29): warning : variable "size" was declared but never referenced
   
-  device_functions.h is an internal header file and must not be used directly.  This file will be removed in a future CUDA release.  Please use cuda_runtime_api.h or cuda_runtime.h instead.
-c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(151): warning : function "printFrameMatrices" was declared but never referenced
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(29): warning : variable "size" was declared but never referenced
   
-  device_functions.h is an internal header file and must not be used directly.  This file will be removed in a future CUDA release.  Please use cuda_runtime_api.h or cuda_runtime.h instead.
-c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(151): warning : function "printFrameMatrices" was declared but never referenced
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(29): warning : variable "size" was declared but never referenced
   
-  device_functions.h is an internal header file and must not be used directly.  This file will be removed in a future CUDA release.  Please use cuda_runtime_api.h or cuda_runtime.h instead.
-c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(151): warning : function "printFrameMatrices" was declared but never referenced
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(29): warning : variable "size" was declared but never referenced
   
-  device_functions.h is an internal header file and must not be used directly.  This file will be removed in a future CUDA release.  Please use cuda_runtime_api.h or cuda_runtime.h instead.
-c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(151): warning : function "printFrameMatrices" was declared but never referenced
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(29): warning : variable "size" was declared but never referenced
   
-  device_functions.h is an internal header file and must not be used directly.  This file will be removed in a future CUDA release.  Please use cuda_runtime_api.h or cuda_runtime.h instead.
-c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(151): warning : function "printFrameMatrices" was declared but never referenced
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(29): warning : variable "size" was declared but never referenced
   
 CUDACOMPILE : nvcc warning : The 'compute_35', 'compute_37', 'compute_50', 'sm_35', 'sm_37' and 'sm_50' architectures are deprecated, and may be removed in a future release (Use -Wno-deprecated-gpu-targets to suppress warning).
   kernel.cu
-  device_functions.h is an internal header file and must not be used directly.  This file will be removed in a future CUDA release.  Please use cuda_runtime_api.h or cuda_runtime.h instead.
-c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(144): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(145): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(146): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(214): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(214): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(165): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(166): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(167): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(296): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda\fluidsim_cuda\kernel.cu(296): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
   
-  C:\Users\Matthias\Desktop\_ECSE420_fluidSim\fluidSim_cuda\fluidSim_cuda>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4\bin\nvcc.exe" -dlink -o x64\Debug\global_queuing.device-link.obj -Xcompiler "/EHsc /W3 /nologo /Od /Fdx64\Debug\vc142.pdb /Zi /RTC1 /MDd " -L"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4\bin/crt" -L"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4\lib\x64" cudadevrt.lib cudart_static.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib cudart.lib  -gencode=arch=compute_35,code=sm_35 -gencode=arch=compute_37,code=sm_37 -gencode=arch=compute_50,code=sm_50 -gencode=arch=compute_52,code=sm_52 -gencode=arch=compute_60,code=sm_60 -gencode=arch=compute_61,code=sm_61 -gencode=arch=compute_70,code=sm_70 -gencode=arch=compute_75,code=sm_75 -gencode=arch=compute_80,code=sm_80 -gencode=arch=compute_86,code=sm_86 -gencode=arch=compute_52,code=sm_52 -G --machine 64 x64\Debug\kernel.cu.obj 
+  C:\Users\Matthias\Desktop\_ECSE420_fluidSim\fluidSim_cuda\fluidSim_cuda>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4\bin\nvcc.exe" -dlink -o x64\Debug\fluidSim_cuda.device-link.obj -Xcompiler "/EHsc /W3 /nologo /Od /Fdx64\Debug\vc142.pdb /Zi /RTC1 /MDd " -L"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4\bin/crt" -L"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4\lib\x64" cudadevrt.lib cudart_static.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib cudart.lib  -gencode=arch=compute_35,code=sm_35 -gencode=arch=compute_37,code=sm_37 -gencode=arch=compute_50,code=sm_50 -gencode=arch=compute_52,code=sm_52 -gencode=arch=compute_60,code=sm_60 -gencode=arch=compute_61,code=sm_61 -gencode=arch=compute_70,code=sm_70 -gencode=arch=compute_75,code=sm_75 -gencode=arch=compute_80,code=sm_80 -gencode=arch=compute_86,code=sm_86 -gencode=arch=compute_52,code=sm_52 -G --machine 64 x64\Debug\kernel.cu.obj 
 CUDALINK : nvcc warning : The 'compute_35', 'compute_37', 'compute_50', 'sm_35', 'sm_37' and 'sm_50' architectures are deprecated, and may be removed in a future release (Use -Wno-deprecated-gpu-targets to suppress warning).
   cudadevrt.lib
   cudart_static.lib
@@ -58,4 +48,4 @@ CUDALINK : nvcc warning : The 'compute_35', 'compute_37', 'compute_50', 'sm_35',
   odbccp32.lib
   cudart.lib
   kernel.cu.obj
-  fluidSim_cuda.vcxproj -> C:\Users\Matthias\Desktop\_ECSE420_repo\LAB3\global_queuing\global_queuing.exe
+  fluidSim_cuda.vcxproj -> C:\Users\Matthias\Desktop\_ECSE420_fluidSim\fluidSim_cuda\fluidSim_cuda\fluidSim_cuda.exe

@@ -1,0 +1,20 @@
+﻿  Compiling CUDA source file kernel.cu...
+  
+  C:\Users\Matthias\Desktop\_ECSE420_fluidSim\FluidSim_cuda_GL\FluidSim_cuda_GL>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4\bin\nvcc.exe" -gencode=arch=compute_52,code=\"sm_52,compute_52\" --use-local-env -ccbin "D:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\bin\HostX86\x64" -x cu   -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4\include"     --keep-dir x64\Release  -maxrregcount=0  --machine 64 --compile -cudart static    -DWIN32 -DWIN64 -DNDEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /O2 /Fdx64\Release\vc142.pdb /FS   /MD " -o x64\Release\kernel.cu.obj "C:\Users\Matthias\Desktop\_ECSE420_fluidSim\FluidSim_cuda_GL\FluidSim_cuda_GL\kernel.cu" 
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda_gl\fluidsim_cuda_gl\kernel.cu(30): warning : variable "size" was declared but never referenced
+  
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda_gl\fluidsim_cuda_gl\kernel.cu(457): warning : function "reshape_func" was declared but never referenced
+  
+  kernel.cu
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda_gl\fluidsim_cuda_gl\kernel.cu(422): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda_gl\fluidsim_cuda_gl\kernel.cu(427): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda_gl\fluidsim_cuda_gl\kernel.cu(432): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda_gl\fluidsim_cuda_gl\kernel.cu(437): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda_gl\fluidsim_cuda_gl\kernel.cu(602): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda_gl\fluidsim_cuda_gl\kernel.cu(603): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda_gl\fluidsim_cuda_gl\kernel.cu(604): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda_gl\fluidsim_cuda_gl\kernel.cu(605): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\matthias\desktop\_ecse420_fluidsim\fluidsim_cuda_gl\fluidsim_cuda_gl\kernel.cu(606): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+     Creating library C:\Users\Matthias\Desktop\_ECSE420_fluidSim\FluidSim_cuda_GL\x64\Release\FluidSim_cuda_GL.lib and object C:\Users\Matthias\Desktop\_ECSE420_fluidSim\FluidSim_cuda_GL\x64\Release\FluidSim_cuda_GL.exp
+  LINK : /LTCG specified but no code generation required; remove /LTCG from the link command line to improve linker performance
+  FluidSim_cuda_GL.vcxproj -> C:\Users\Matthias\Desktop\_ECSE420_fluidSim\FluidSim_cuda_GL\x64\Release\FluidSim_cuda_GL.exe
