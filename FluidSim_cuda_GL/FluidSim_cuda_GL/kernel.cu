@@ -33,8 +33,6 @@ __device__ void set_bnd(int N, int b, float* x, int index, int elementsPerThread
 		return;
 	}
 
-	int size = (N + 2) * (N + 2);
-
 	while (i < (index + elementsPerThread) && i <= N + 1) {
 		x[IX(0, i)] = b == 1 ? -x[IX(1, i)] : x[IX(1, i)];
 		x[IX(N + 1, i)] = b == 1 ? -x[IX(N, i)] : x[IX(N, i)];
