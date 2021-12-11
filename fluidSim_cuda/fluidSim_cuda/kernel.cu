@@ -8,6 +8,7 @@
 
 #define IX(i,j) ((i)+(N+2)*(j))
 #define SWAP(x0,x) {float * tmp=x0;x0=x;x=tmp;}
+#define MAX(a,b) (((a)<(b))?(b):(a))
 
 __global__ void add_source(float* x, float* s, float dt, int size)
 {
@@ -21,13 +22,11 @@ __global__ void add_source(float* x, float* s, float dt, int size)
 __device__ void set_bnd(int N, int b, float* x, int index, int elementsPerThread)
 {
     int i = index + 1;
-    if (i > N + 1) {
+    if (i > N) {
         return;
     }
 
-    int size = (N + 2) * (N + 2);
-
-    while (i < (index + elementsPerThread) && i <= N + 1) {
+    while (i <= (index + elementsPerThread) && i <= N) {
         x[IX(0, i)] = b == 1 ? -x[IX(1, i)] : x[IX(1, i)];
         x[IX(N + 1, i)] = b == 1 ? -x[IX(N, i)] : x[IX(N, i)];
         x[IX(i, 0)] = b == 2 ? -x[IX(i, 1)] : x[IX(i, 1)];
@@ -272,7 +271,7 @@ int main(int argc, char* argv[]) {
     int num_blocks_source = (N + 2);
     
     // Parallelization scheme for only using one block
-    int elementsPerThread = (N * N + 1) / num_threads;
+    int elementsPerThread = MAX(1, (N * N + num_threads) / num_threads);
 
     // Instantiate cuda streams
     cudaStream_t stream1, stream2, stream3;
