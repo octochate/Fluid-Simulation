@@ -1,0 +1,35 @@
+==11948== Profiling application: .\fluidSim_cuda.exe 128 256 100 0 0
+==11948== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   92.22%  4.77351s       500  9.5470ms  9.4618ms  11.783ms  lin_solve(int, int, float*, float*, floa
+t, float, int)
+                    2.87%  148.46ms       300  494.88us  490.10us  500.34us  advect(int, int, float*, float*, float*,
+ float*, float, int)
+                    2.48%  128.17ms       200  640.84us  638.84us  643.16us  project3(int, float*, float*, float*, in
+t)
+                    2.40%  124.27ms       200  621.34us  616.50us  692.06us  project1(int, float*, float*, float*, fl
+oat*, int)
+                    0.04%  1.9035ms       300  6.3450us  6.0160us  9.5360us  add_source(float*, float*, float, int)
+                    0.00%  9.6320us         8  1.2040us  1.1840us  1.2160us  [CUDA memset]
+      API calls:   95.83%  5.21856s       600  8.6976ms  59.000us  32.302ms  cudaDeviceSynchronize
+                    2.62%  142.50ms         8  17.813ms  39.100us  142.15ms  cudaMallocManaged
+                    0.83%  45.014ms      1500  30.009us  2.8000us  683.30us  cudaLaunchKernel
+                    0.69%  37.322ms         1  37.322ms  37.322ms  37.322ms  cuDevicePrimaryCtxRelease
+                    0.02%  1.2772ms         8  159.65us  129.30us  333.50us  cudaMemset
+                    0.01%  579.60us         1  579.60us  579.60us  579.60us  cuModuleUnload
+                    0.01%  485.60us         8  60.700us  10.000us  384.50us  cudaFree
+                    0.00%  46.400us         1  46.400us  46.400us  46.400us  cudaStreamCreate
+                    0.00%  28.500us         1  28.500us  28.500us  28.500us  cuDeviceTotalMem
+                    0.00%  23.700us         3  7.9000us     400ns  22.500us  cudaStreamDestroy
+                    0.00%  17.000us       101     168ns     100ns     800ns  cuDeviceGetAttribute
+                    0.00%  2.7000us         3     900ns     200ns  2.1000us  cuDeviceGetCount
+                    0.00%  1.3000us         2     650ns     100ns  1.2000us  cuDeviceGet
+                    0.00%     600ns         1     600ns     600ns     600ns  cuDeviceGetName
+                    0.00%     400ns         1     400ns     400ns     400ns
+                    0.00%     200ns         1     200ns     200ns     200ns
+
+==11948== Unified Memory profiling result:
+Device "NVIDIA GeForce GTX 1050 Ti (0)"
+   Count  Avg Size  Min Size  Max Size  Total Size  Total Time  Name
+     900  22.666KB  4.0000KB  32.000KB  19.92188MB  16.01790ms  Host To Device
+     921  22.149KB  4.0000KB  32.000KB  19.92188MB  97.62550ms  Device To Host
